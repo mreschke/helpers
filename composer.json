@@ -1,0 +1,20 @@
+{
+    "name": "mreschke/helpers",
+    "description": "",
+    "authors": [
+        {
+            "name": "Matthew Reschke",
+            "email": "mail@mreschke.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/support": "4.1.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "Mreschke\\Helpers": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}

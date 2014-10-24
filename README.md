@@ -1,4 +1,4 @@
-mreschke-helpers
-================
+helpers
+=======
 
-Mreschke helpers workbench
+Laravel helpers workbench
