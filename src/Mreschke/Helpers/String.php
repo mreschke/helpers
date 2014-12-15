@@ -47,7 +47,7 @@ Class String
 	 * @param string $string optional run md5 on this string instead of random
 	 * @return 32 character md5 hash string
 	 */
-	public function getMd5($string=null)
+	public static function getMd5($string=null)
 	{
 		if (!$string) {
 			return md5(uniqid(rand(), true));	
