@@ -30,6 +30,7 @@ class Date
 		# Find milliseconds (thousands) and guarantee 3 characters
 		$msec = round($usec / 1000); #milliseconds (thousands)
 		$msec = str_pad($msec, 3, "0", STR_PAD_LEFT);
+		if ($msec == 1000) $msec = 999;
 
 		$format = preg_replace('`(?<!\\\\)u`', $msec, $format);
 
