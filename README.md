@@ -1,4 +1,5 @@
-helpers
-=======
+mreschke-helpers
+================
 
-Laravel helpers workbench
+Misc helper functions
+
