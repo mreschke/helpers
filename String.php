@@ -95,7 +95,7 @@ Class String
 	 * @param  string $data
 	 * @return string
 	 */
-	protected function toAscii($data, $trim = true, $blankToNull = false)
+	public static function toAscii($data, $trim = true, $blankToNull = false)
 	{
 		if (isset($data)) {
 			// Convert word style characters
