@@ -107,6 +107,10 @@ Class String
 			// Remove all other non-ascii characters
 			$data = preg_replace('/[^[:print:]]/', '', $data); #Shows only ascii 21-126 (plain text)
 
+			// Remove double spaces because of replaced characters
+			$data = preg_replace('/  /', ' ', $data);
+			$data = preg_replace('/  /', ' ', $data);
+
 			if ($trim) $data = trim($data);
 			if ($blankToNull && $data == "") $data = null;
 		}
