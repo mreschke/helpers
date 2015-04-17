@@ -90,4 +90,27 @@ Class String
 		return $string;
 	}
 
+	/**
+	 * Removes all non ascii characters (32-126) and converts some special msword like characters to their equivalent ascii
+	 * @param  string $data
+	 * @return string
+	 */
+	protected function toAscii($data, $trim = true, $blankToNull = false)
+	{
+		if (isset($data)) {
+			// Convert word style characters
+			$data = preg_replace('/–|—/', '-', $data); #they look the same, but they two different dashes
+			$data = preg_replace('/‘|’|‚/', '\'', $data);
+			$data = preg_replace('/“|”|„/', '"', $data);
+			$data = preg_replace('/…/', '...', $data);
+
+			// Remove all other non-ascii characters
+			$data = preg_replace('/[^[:print:]]/', '', $data); #Shows only ascii 21-126 (plain text)
+
+			if ($trim) $data = trim($data);
+			if ($blankToNull && $data == "") $data = null;
+		}
+		return $data;
+	}
+
 }
