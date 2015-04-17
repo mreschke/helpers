@@ -92,7 +92,9 @@ Class String
 
 	/**
 	 * Removes all non ascii characters (32-126) and converts some special msword like characters to their equivalent ascii
-	 * @param  string $data
+	 * @param string $data
+	 * @param boolean $trim = true trim string
+	 * @param boolean $blankToNull = false converts a blank string into null
 	 * @return string
 	 */
 	public static function toAscii($data, $trim = true, $blankToNull = false)
@@ -103,6 +105,8 @@ Class String
 			$data = preg_replace('/‘|’|‚/', '\'', $data);
 			$data = preg_replace('/“|”|„/', '"', $data);
 			$data = preg_replace('/…/', '...', $data);
+			$data = preg_replace('/•/', '*', $data);
+			$data = preg_replace('/‰/', '%', $data);
 
 			// Remove all other non-ascii characters
 			$data = preg_replace('/[^[:print:]]/', '', $data); #Shows only ascii 21-126 (plain text)
