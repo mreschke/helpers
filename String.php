@@ -121,4 +121,21 @@ Class String
 		return $data;
 	}
 
+	/**
+	 * Unserialize data only if serialized
+	 * @param  data $value
+	 * @return mixed
+	 */
+	public static function unserialize($value)
+	{
+		$data = @unserialize($value);
+		if ($value === 'b:0;' || $data !== false) {
+			// Unserialization passed, return unserialized data
+			return $data;
+		} else {
+			// Data was not serialized, return raw data
+			return $value;
+		}
+	}
+
 }
