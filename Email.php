@@ -1,7 +1,6 @@
 <?php namespace Mreschke\Helpers;
 
 use Mail;
-use File;
 use Queue;
 use Validator;
 
@@ -114,7 +113,7 @@ class Email
 				// Attachments
 				if (isset($files)) {
 					foreach ($files as $file) {
-						if (File::exists($file)) {
+						if (file_exists($file)) {
 							$message->attach($file);
 						}
 					}
