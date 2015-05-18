@@ -128,14 +128,44 @@ Class String
 	 */
 	public static function unserialize($value)
 	{
-		$data = @unserialize($value);
-		if ($value === 'b:0;' || $data !== false) {
-			// Unserialization passed, return unserialized data
-			return $data;
+		if (static::isSerialized($value)) {
+			$data = @unserialize($value);
+			if ($value === 'b:0;' || $data !== false) {
+				// Unserialization passed, return unserialized data
+				return $data;
+			} else {
+				// Data was not serialized, return raw data
+				return $value;
+			}
 		} else {
-			// Data was not serialized, return raw data
 			return $value;
 		}
 	}
+
+	/**
+	 * Check if string is serialized
+	 * @param  mixed $data
+	 * @return boolean
+	 */
+	public static function isSerialized( $data ) {
+		if (!is_string($data)) return false;
+		$data = trim($data);
+		if ('N;' == $data) return true;
+		if (!preg_match('/^([adObis]):/', $data, $badions))	return false;
+		
+		switch ($badions[1]) {
+			case 'a' :
+			case 'O' :
+			case 's' :
+				if (preg_match("/^{$badions[1]}:[0-9]+:.*[;}]\$/s", $data)) return true;
+				break;
+			case 'b' :
+			case 'i' :
+			case 'd' :
+				if (preg_match("/^{$badions[1]}:[0-9.E-]+;\$/", $data)) return true;
+				break;
+		}
+		return false;
+	}	
 
 }
