@@ -57,7 +57,7 @@ class Console
 	 * @param  string  $outputSeparator
 	 * @return mixed
 	 */
-	public function exec($cmd, $outputArray = false, $outputSeparator = "\n") {
+	public static function exec($cmd, $outputArray = false, $outputSeparator = "\n") {
 		exec("$cmd", $output);
 		if ($outputArray) {
 			return $output;
@@ -164,17 +164,5 @@ class Console
 	{
 		$this->exec("sed -i 's`$search`$replace`g' $file");
 	}
-
-
-	/**
-	 * Test proper class instantiation
-	 *
-	 * @return Hello World success text string
-	 */
-	public static function test()
-	{
-		return "Hello World from ".get_class();
-	}
-
 
 }
