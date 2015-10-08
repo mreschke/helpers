@@ -14,11 +14,11 @@ Class Other
 	 * @param array $array
 	 * @return boolean
 	 */
-    public static function isAssoc($array)
-    {
-        #return (is_array($array) && (count($array)==0 || 0 !== count(array_diff_key($array, array_keys(array_keys($array))) )));
+	public static function isAssoc($array)
+	{
+		#return (is_array($array) && (count($array)==0 || 0 !== count(array_diff_key($array, array_keys(array_keys($array))) )));
 		return (is_array($arr) && array_keys($arr) !== range(0, count($arr) - 1));
-    }
+	}
 
 	/**
 	 * Collapse a basic subentity into the single level master entity
@@ -33,9 +33,9 @@ Class Other
 				if (is_array($value) || is_object($value)) {
 					if (is_array(head($value)) || is_object(head($value))) {
 						// Cannot handle multi level subeneity, only 1-1
-						if (is_array(head($value))) {
+						if (is_array($data[$i])) {
 							$data[$i][$key] = '--Complex--';
-						} elseif (is_object(head($value))) {
+						} elseif (is_object($data[$i])) {
 							$data[$i]->$key = '--Complex--';
 						}
 					} else {
