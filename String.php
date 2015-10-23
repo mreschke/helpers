@@ -12,7 +12,7 @@ Class String
 	/**
 	 * Generate a new v4 36 (or 38 with brackets) char GUID.
 	 * Ex: 9778d799-b37b-7bfc-2685-47b3d28aa7af
-	 * @param bool $includeBrackets 
+	 * @param bool $includeBrackets
 	 * @return string v4 character guid
 	 */
 	public static function getGuid($includeBrackets = false)
@@ -50,7 +50,7 @@ Class String
 	public static function getMd5($string=null)
 	{
 		if (!$string) {
-			return md5(uniqid(rand(), true));	
+			return md5(uniqid(rand(), true));
 		} else {
 			return md5($string);
 		}
@@ -73,7 +73,7 @@ Class String
 				substr($uuid, 20);
 		}
 	}
-	
+
 	/**
 	 * Slugify a string.
 	 * @param  string $string
@@ -90,7 +90,6 @@ Class String
 		return $string;
 	}
 
-	/**
 	 * Removes all non ascii characters (32-126) and converts some special msword like characters to their equivalent ascii
 	 * @param string $data
 	 * @param boolean $trim = true trim string
@@ -100,20 +99,32 @@ Class String
 	public static function toAscii($data, $trim = true, $blankToNull = false)
 	{
 		if (isset($data)) {
-			// Convert word style characters
-			$data = preg_replace('/–|—/', '-', $data); #they look the same, but they two different dashes
-			$data = preg_replace('/‘|’|‚/', '\'', $data);
-			$data = preg_replace('/“|”|„/', '"', $data);
-			$data = preg_replace('/…/', '...', $data);
-			$data = preg_replace('/•/', '*', $data);
-			$data = preg_replace('/‰/', '%', $data);
+			// Sample.  This will convert MSWORD style chars + all sorts of UTF-8 chars into proper ASCII...very nice!
+			#dirty  : MSWord – ‘ ’ “ ” • … ‰ á|â|à|å|ä ð|é|ê|è|ë í|î|ì|ï ó|ô|ò|ø|õ|ö ú|û|ù|ü æ ç ß abc ABC 123 áêìõç This is the Euro symbol '€'. Žluťoučký kůň\n and such
+			#toAscii: MSWord - ' ' " " o ... ? a|a|a|a|a ?|e|e|e|e i|i|i|i o|o|o|oe|o|o u|u|u|u ae c ss abc ABC 123 aeioc This is the Euro symbol 'EUR'. Zlutoucky kun and such
 
-			// Remove all other non-ascii characters
-			$data = preg_replace('/[^[:print:]]/', '', $data); #Shows only ascii 21-126 (plain text)
+			// Detect encoding.  If bad, will usually be UTF-8
+			$encoding = mb_detect_encoding($data);
+			if ($encoding != "ASCII") {
 
-			// Remove double spaces because of replaced characters
-			$data = preg_replace('/  /', ' ', $data);
-			$data = preg_replace('/  /', ' ', $data);
+				// DO NOT run through utf8_encode() first as that will mess up iconv
+				// If your string needs it, do it before you send to this function
+				$msWordChars = ['–'=>'-', '—'=>'-', '‘'=>"'", '’'=>"'", '“'=>'"', '”'=>'"', '„'=>'"', '…'=>'...', '•'=>'o', '‰'=>'%'];
+				$data = strtr($data, $msWordChars);
+
+				try {
+					// Notice NOT IGNORE, will only fail if needs converted to utf8_encode
+					$data = iconv($encoding,'ASCII//TRANSLIT', $data);
+				} catch (\Exception $ex) {
+					// If failed, there were thinks like b"Orléans" which need utf8_encode FIRST before iconv
+					$data = utf8_encode($data);
+					$data = iconv($encoding,'ASCII//TRANSLIT//IGNORE', $data); // Notice IGNORE this time
+				}
+			}
+
+			// Remove all other non-ascii characters (shouldn't be any after iconv, but just in case)
+			// Not sure I need this ?
+			#$data = preg_replace('/[^[:print:]]/', '', $data); #Shows only ascii 21-126 (plain text)
 
 			if ($trim) $data = trim($data);
 			if ($blankToNull && $data == "") $data = null;
@@ -152,7 +163,7 @@ Class String
 		$data = trim($data);
 		if ('N;' == $data) return true;
 		if (!preg_match('/^([adObis]):/', $data, $badions))	return false;
-		
+
 		switch ($badions[1]) {
 			case 'a' :
 			case 'O' :
@@ -166,6 +177,6 @@ Class String
 				break;
 		}
 		return false;
-	}	
+	}
 
 }
