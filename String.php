@@ -90,7 +90,7 @@ Class String
 		return $string;
 	}
 
-	 * Removes all non ascii characters (32-126) and converts some special msword like characters to their equivalent ascii
+	/* Removes all non ascii characters (32-126) and converts some special msword like characters to their equivalent ascii
 	 * @param string $data
 	 * @param boolean $trim = true trim string
 	 * @param boolean $blankToNull = false converts a blank string into null
