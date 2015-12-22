@@ -8,7 +8,7 @@
  */
 class File
 {
-	
+
 	/**
 	 * Write data to a file
 	 * @param  string $file full path to file
@@ -46,7 +46,7 @@ class File
 		if (!$extension) $extension = 'tmp';
 
 		if (substr($path, -1) != '/') $path .= "/";
-		return $path.$name.String::getMd5().".tmp";
+		return $path.$name.Str::getMd5().".tmp";
 	}
 
 	/**
@@ -59,10 +59,10 @@ class File
 		if (posix_getuid() != 0) {
 			$this->error("getOpenFiles must be run as root");
 			exit();
-		}		
+		}
 		$cmd = "lsof -Fn | grep $path | sort -u | sed 's/^.//'";
 		exec($cmd, $files);
 		return $files;
-	}	
+	}
 
 }

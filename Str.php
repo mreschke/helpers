@@ -1,12 +1,13 @@
 <?php namespace Mreschke\Helpers;
 
 /**
- * String helpers.
+ * String helpers
+ * Class nams is Str because String is a reserved word in PHP 7+
  * @copyright 2014 Matthew Reschke
  * @license http://mreschke.com/license/mit
  * @author Matthew Reschke <mail@mreschke.com>
  */
-Class String
+Class Str
 {
 
 	/**
