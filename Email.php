@@ -91,11 +91,11 @@ class Email
 		}
 
 		// Add to queue using closure
-		Queue::push(function($job) use($to, $subject, $body, $from, $fromName, $template, $replyTo, $cc, $bcc, $files) {
-			
+		#Queue::push(function($job) use($to, $subject, $body, $from, $fromName, $template, $replyTo, $cc, $bcc, $files) {
+
 			// Send mail
 			Mail::send($template, ['msg' => $body], function($message) use($to, $subject, $body, $from, $fromName, $template, $replyTo, $cc, $bcc, $files) {
-				
+
 				// From
 				$message->from($from, $fromName);
 
@@ -122,9 +122,9 @@ class Email
 			});
 
 			// Delete queu job after completion (part of a queue closure)
-			$job->delete();
+			#$job->delete();
 
-		});
+		#});
 	}
 
 }

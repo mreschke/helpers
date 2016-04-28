@@ -43,21 +43,6 @@ Class Str
 	}
 
 	/**
-	 * Generate a 32 character md5 hash from a string.
-	 * If string = null generates from a random string.
-	 * @param string $string optional run md5 on this string instead of random
-	 * @return 32 character md5 hash string
-	 */
-	public static function getMd5($string=null)
-	{
-		if (!$string) {
-			return md5(uniqid(rand(), true));
-		} else {
-			return md5($string);
-		}
-	}
-
-	/**
 	 * Convert a 32 character uuid (md5 hash) to a 36 character guid.
 	 * Just adds the proper dashes, does not add brackets.
 	 * @param string $uuid
@@ -72,6 +57,34 @@ Class Str
 				substr($uuid, 12, 4) . '-' .
 				substr($uuid, 16, 4) . '-' .
 				substr($uuid, 20);
+		}
+	}
+
+	/**
+	 * Convert a mssql binary guid to a string guid
+	 * @param  binary string $binary
+	 * @return string
+	 */
+	public static function binaryToGuid($binary)
+	{
+		$unpacked = unpack('Va/v2b/n2c/Nd', $binary);
+		return sprintf('%08X-%04X-%04X-%04X-%04X%08X', $unpacked['a'], $unpacked['b1'], $unpacked['b2'], $unpacked['c1'], $unpacked['c2'], $unpacked['d']);
+		// Alternative: http://www.scriptscoop.net/t/c9bb02ec9fdb/decoding-base64-guid-in-python.html
+		// Alternative: http://php.net/manual/en/function.ldap-get-values-len.php
+	}
+
+	/**
+	 * Generate a 32 character md5 hash from a string.
+	 * If string = null generates from a random string.
+	 * @param string $string optional run md5 on this string instead of random
+	 * @return 32 character md5 hash string
+	 */
+	public static function getMd5($string=null)
+	{
+		if (!$string) {
+			return md5(uniqid(rand(), true));
+		} else {
+			return md5($string);
 		}
 	}
 

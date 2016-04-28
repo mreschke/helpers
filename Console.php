@@ -69,14 +69,14 @@ class Console
 	/**
 	 * Output a line to the console and/or the log.
 	 * @param  string $output
-	 * @param  string $summary 
+	 * @param  string $summary
 	 * @param  string $type
 	 * @param  string $action
 	 * @return void
 	 */
 	public function out($output, $summary = 'Main', $type = 'log', $action = 'next') {
 		if (!$this->quiet) {
-			echo "$output\n";	
+			echo "$output\n";
 		}
 		$this->writeLog($output, $summary, $type, $action);
 	}
