@@ -72,10 +72,12 @@ class Email
 	 * @param  string $template email blade template
 	 * @return boolean sent success
 	 */
-	public static function send($to, $subject, $body, $from, $fromName = null, $replyTo = null, $cc = null, $bcc = null, $files = null, $template = 'emails.message')
+	public static function send($to, $subject, $body, $from = null, $fromName = null, $replyTo = null, $cc = null, $bcc = null, $files = null, $template = 'emails.message')
 	{
 		// Validate all emails and convert to email arrays
 		$to = self::validate($to);
+		$from = isset($from) ? $from : config('mail.from.address');
+		$fromName = isset($fromName) ? $fromName : config('mail.from.name');
 		$from = self::validate($from);
 		$replyTo = self::validate($replyTo);
 		$cc = self::validate($cc);
@@ -90,39 +92,31 @@ class Email
 			}
 		}
 
-		// Add to queue using closure
-		Queue::push(function($job) use($to, $subject, $body, $from, $fromName, $template, $replyTo, $cc, $bcc, $files) {
+		// Send mail (use Mail::send for sync or Mail::queue for queeu async)
+		Mail::queue($template, ['msg' => $body], function($message) use($to, $subject, $body, $from, $fromName, $template, $replyTo, $cc, $bcc, $files) {
 
-			// Send mail
-			Mail::send($template, ['msg' => $body], function($message) use($to, $subject, $body, $from, $fromName, $template, $replyTo, $cc, $bcc, $files) {
+			// From
+			$message->from($from, $fromName);
 
-				// From
-				$message->from($from, $fromName);
+			// Recipients
+			$message->to($to);
+			if (isset($cc)) $message->cc($cc);
+			if (isset($bcc)) $message->bcc($bcc);
 
-				// Recipients
-				$message->to($to);
-				if (isset($cc)) $message->cc($cc);
-				if (isset($bcc)) $message->bcc($bcc);
+			// Reply To
+			$message->replyTo($replyTo);
 
-				// Reply To
-				$message->replyTo($replyTo);
+			// Subject
+			$message->subject($subject);
 
-				// Subject
-				$message->subject($subject);
-
-				// Attachments
-				if (isset($files)) {
-					foreach ($files as $file) {
-						if (file_exists($file)) {
-							$message->attach($file);
-						}
+			// Attachments
+			if (isset($files)) {
+				foreach ($files as $file) {
+					if (file_exists($file)) {
+						$message->attach($file);
 					}
 				}
-
-			});
-
-			// Delete queue job after completion (part of a queue closure)
-			$job->delete();
+			}
 
 		});
 	}

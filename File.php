@@ -50,16 +50,12 @@ class File
 	}
 
 	/**
-	 * Get all open files in path (recursive), uses lsof, requres root privileges
+	 * Get all open files in path (recursive), uses lsof, requres root privileges to get most lsof file results
 	 * @param  string $path
 	 * @return array
 	 */
 	public static function getOpenFiles($path)
 	{
-		if (posix_getuid() != 0) {
-			$this->error("getOpenFiles must be run as root");
-			exit();
-		}
 		$cmd = "lsof -Fn | grep $path | sort -u | sed 's/^.//'";
 		exec($cmd, $files);
 		return $files;
