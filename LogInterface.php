@@ -9,14 +9,13 @@
 interface LogInterface
 {
 
-  	/**
-  	 * Write one line of log data
-  	 * @param  string $data
-  	 * @param  string $summary
-  	 * @param  string $type
-  	 * @param  string $action
-  	 * @return void
-  	 */
-	public function write($data, $summary = 'Main', $type = 'log', $action = 'next');
-
+    /**
+     * Write one line of log data
+     * @param  string $data
+     * @param  string $summary
+     * @param  string $type
+     * @param  string $action
+     * @return void
+     */
+    public function write($data, $summary = 'Main', $type = 'log', $action = 'next');
 }

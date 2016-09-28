@@ -6,8 +6,6 @@
  * @license http://mreschke.com/license/mit
  * @author Matthew Reschke <mail@mreschke.com>
  */
-Class Host
+class Host
 {
-
-	
 }
