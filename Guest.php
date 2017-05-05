@@ -8,12 +8,12 @@
  */
 class Guest
 {
-    
+
     /**
      * Get the users operating system.
      * Uses the HTTP_USER_AGENT server variable
      * @author http://www.geekpedia.com/code47_Detect-operating-system-from-user-agent-string.html
-     * @return [type] [description]
+     * @return string
      */
     public static function getOs()
     {

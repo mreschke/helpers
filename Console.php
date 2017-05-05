@@ -15,12 +15,13 @@ class Console
     private $quiet;
 
     /**
-     * Create a new Console instance.
-     * @param string  $log
-     * @param boolean $quiet
+     * Create a new Console instance
+     * @param string  $log = null
+     * @param boolean $quiet = false
      */
     public function __construct($log = null, $quiet = false)
     {
+        $this->foregroundColors['default'] = '0;0';
         $this->foregroundColors['black'] = '0;30';
         $this->foregroundColors['dark_gray'] = '1;30';
         $this->foregroundColors['blue'] = '0;34';
@@ -52,13 +53,141 @@ class Console
     }
 
     /**
+     * Write log file if enabled
+     * @param  string $output
+     * @param  string $summary = 'Main'
+     * @param  string $type = 'log'
+     * @param  string $action = 'next'
+     * @return void
+     */
+    public function writeLog($output, $summary = 'Main', $type = 'log', $action = 'next')
+    {
+        // Only write log if logging to file is enabled
+        if (isset($this->log)) {
+            $this->log->write($output, $summary, $type, $action);
+        }
+    }
+
+    /**
+     * Output a line to the console and/or the log.
+     * @param  string $output
+     * @param  string $summary = 'Main'
+     * @param  string $type = 'log'
+     * @param  string $action = 'next'
+     * @return void
+     */
+    public function out($output, $summary = 'Main', $type = 'log', $action = 'next')
+    {
+        if (!$this->quiet) {
+            echo $output, PHP_EOL;
+        }
+        $this->writeLog($output, $summary, $type, $action);
+    }
+
+    /**
+     * Output a header line to the console and/or the log file
+     * @param  string $output
+     * @param  string $summary = 'Main'
+     * @param  string $type = 'log'
+     * @param  string $action = 'next'
+     * @return void
+     */
+    public function header($output, $summary = 'Main', $type = 'log', $action = 'next')
+    {
+        if (!$this->quiet) {
+            echo $this->color(":: ", "yellow");
+            echo $this->color($output, "light_green");
+            echo $this->color(" ::", "yellow");
+            echo PHP_EOL;
+        }
+        $this->writeLog($output, $summary, $type, $action);
+    }
+
+    /**
+     * Output a line item with optional indentation to the console and/or the log file
+     * @param  string $output
+     * @param  integer $indent = 0
+     * @param  string  $summary = 'Main'
+     * @param  string  $type = 'log'
+     * @param  string  $action = 'next'
+     * @return void
+     */
+    public function item($output, $indent = 0, $summary = 'Main', $type = 'log', $action = 'next')
+    {
+        if (!$this->quiet) {
+            $color = 'green';
+            if ($indent > 0) {
+                $indent = ($indent * 2);
+                $color = 'blue';
+            }
+            echo $this->color(str_repeat(" ", $indent)."* ", $color) . $output . PHP_EOL;
+        }
+        $this->writeLog(str_repeat(" ", $indent).$output, $summary, $type, $action);
+    }
+
+    /**
+     * Output a notice line to the console and/or the log file
+     * @param  string $output
+     * @param  string $summary = 'Main'
+     * @param  string $type = 'unusual'
+     * @param  string $action = 'next'
+     * @return void
+     */
+    public function notice($output, $summary = 'Main', $type = 'unusual', $action = 'next')
+    {
+        if (!$this->quiet) {
+            echo $this->color($output, "yellow") . PHP_EOL;
+        }
+        $this->writeLog($output, $summary, $type, $action);
+    }
+
+    /**
+     * Output an error line to the console and/or the log file
+     * @param  string $output
+     * @param  string $summary = 'Main'
+     * @param  string $action = 'next'
+     * @return void
+     */
+    public function error($output, $summary = 'Main', $action = 'next')
+    {
+        if (!$this->quiet) {
+            file_put_contents('php://stderr', $this->color($output, "red") . PHP_EOL);
+        }
+        $this->writeLog($output, $summary, 'error', $action);
+    }
+
+    /**
+     * Output one or more lines with defined character (ex: $c->separator(1, '#', 'blue', 2))
+     * @param  int $count = 1
+     * @param  string $char = ''
+     * @param  string $color = 'default'
+     * @param  int $linesBeforeAfter = 0
+     * @return void
+     */
+    public function separator($count = 1, $char = '', $color = 'default', $linesBeforeAfter = 0)
+    {
+        $width = $this->screenWidth();
+        if ($linesBeforeAfter) echo str_repeat(PHP_EOL, $linesBeforeAfter);
+
+        for ($i=1; $i <= $count; $i++) {
+            if ($char) {
+                echo $this->color(str_repeat($char, $width), $color) . PHP_EOL;
+            } else {
+                echo PHP_EOL;
+            }
+        }
+
+        if ($linesBeforeAfter) echo str_repeat(PHP_EOL, $linesBeforeAfter);
+    }
+
+    /**
      * Execute a bash command.
      * @param  string  $cmd
      * @param  boolean $outputArray
-     * @param  string  $outputSeparator
+     * @param  string  $outputSeparator = PHP_EOL
      * @return mixed
      */
-    public static function exec($cmd, $outputArray = false, $outputSeparator = "\n")
+    public static function exec($cmd, $outputArray = false, $outputSeparator = PHP_EOL)
     {
         exec("$cmd", $output);
         if ($outputArray) {
@@ -69,78 +198,32 @@ class Console
     }
 
     /**
-     * Output a line to the console and/or the log.
-     * @param  string $output
-     * @param  string $summary
-     * @param  string $type
-     * @param  string $action
-     * @return void
+     * Get terminal screen width
+     * @return int
      */
-    public function out($output, $summary = 'Main', $type = 'log', $action = 'next')
+    public function screenWidth()
     {
-        if (!$this->quiet) {
-            echo "$output\n";
-        }
-        $this->writeLog($output, $summary, $type, $action);
+        return exec('tput cols');
+        #$this->settings['screen']['height'] = exec('tput lines')
     }
 
     /**
-     * Output a header line to the console and/or the log.
-     * @param  string $output
-     * @param  string $summary
-     * @param  string $type
-     * @param  string $action
-     * @return [type]
+     * Get terminal screen height
+     * @return int
      */
-    public function header($output, $summary = 'Main', $type = 'log', $action = 'next')
+    public function screenHeight()
     {
-        if (!$this->quiet) {
-            echo $this->getColoredString(":: ", "yellow");
-            echo $this->getColoredString($output, "light_green");
-            echo $this->getColoredString(" ::", "yellow");
-            echo "\n";
-        }
-        $this->writeLog($output, $summary, $type, $action);
+        return exec('tput lines');
     }
 
-    public function item($output, $indent = 0, $summary = 'Main', $type = 'log', $action = 'next')
-    {
-        if (!$this->quiet) {
-            $color = 'green';
-            if ($indent > 0) {
-                $indent = ($indent * 2);
-                $color = 'blue';
-            }
-            echo $this->getColoredString(str_repeat(" ", $indent)."* ", $color) . $output . "\n";
-        }
-        $this->writeLog(str_repeat(" ", $indent).$output, $summary, $type, $action);
-    }
-
-    public function notice($output, $summary = 'Main', $type = 'unusual', $action = 'next')
-    {
-        if (!$this->quiet) {
-            echo $this->getColoredString($output, "yellow") . "\n";
-        }
-        $this->writeLog($output, $summary, $type, $action);
-    }
-
-    public function error($output, $summary = 'Main', $action = 'next')
-    {
-        if (!$this->quiet) {
-            file_put_contents('php://stderr', $this->getColoredString($output, "red") . "\n");
-        }
-        $this->writeLog($output, $summary, 'error', $action);
-    }
-
-    public function writeLog($output, $summary = 'Main', $type = 'log', $action = 'next')
-    {
-        if (isset($this->log)) {
-            $this->log->write($output, $summary, $type, $action);
-        }
-    }
-
-    // Returns colored string
-    public function getColoredString($string, $foreground_color = null, $background_color = null)
+    /**
+     * Get a terminal colored string
+     * @param  string $string
+     * @param  string $foreground_color
+     * @param  string $background_color
+     * @return string
+     */
+    public function color($string, $foreground_color = null, $background_color = null)
     {
         $coloredString = "";
 
@@ -157,6 +240,14 @@ class Console
         $coloredString .=  $string . "\033[0m";
 
         return $coloredString;
+    }
+
+    /**
+     * Alias to color
+     */
+    public function getColoredString($string, $foreground_color = null, $background_color = null)
+    {
+        return $this->color($string, $foreground_color, $background_color);
     }
 
     // Returns all foreground color names
