@@ -209,13 +209,13 @@ class Str
     }
 
     /**
-     * Get a consistent generated obfuscation of a name
+     * Get a consistent generated obfuscation of a full name
      * @param  string $first first name
      * @param  string $middle=null middle name
      * @param  string $last=null last name
      * @return array
      */
-    public static function obfuscateName($first, $middle = null, $last = null)
+    public static function obfuscateFullName($first, $middle = null, $last = null)
     {
         // Remember you can NEVER change the size of these 2 arrays or all prod will CHANGE obfuscation
 
