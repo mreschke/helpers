@@ -18,14 +18,11 @@ class Xml
      */
     public static function prettyPrint($xml)
     {
-        // Convert SimpleXMLElement to string while decoding HTML
-        $xmlString = $xml->saveXML();
-
         // Load string into DomDocument to apply formatting
         $doc = new DomDocument('1.0');
         $doc->preserveWhiteSpace = false;
         $doc->formatOutput = true;
-        $doc->loadXML($xmlString);
+        $doc->loadXML($xml->saveXML());
 
         // Return formatted XML as string
         return $doc->saveXML();
