@@ -16,7 +16,7 @@ class Xml
      * @param  SimpleXMLElement $xml
      * @return string
      */
-    public static function prettyPrint($xml)
+    public function prettyPrint($xml)
     {
         // Load string into DomDocument to apply formatting
         $doc = new DomDocument('1.0');
@@ -34,7 +34,7 @@ class Xml
      * @param  SimpleXMLElement &$simpleXmlAppend append this to main
      * @return void (no return, all ByRef)
      */
-    public static function appendElement(&$simpleXmlMain, &$simpleXmlAppend)
+    public function appendElement(&$simpleXmlMain, &$simpleXmlAppend)
     {
         // Ignore if any are empty
         if (!isset($simpleXmlMain) || !isset($simpleXmlAppend)) return;
@@ -44,7 +44,7 @@ class Xml
                 $temp->addAttribute($attr_key, $attr_value);
             }
             // Recursively add each childs children
-            Xml::appendElement($temp, $child);
+            $this->appendElement($temp, $child);
         }
     }
 
@@ -55,11 +55,11 @@ class Xml
      * @param  boolean $prettyPrint = false
      * @return void
      */
-    public static function save(SimpleXMLElement $xml, $file, $prettyPrint = false)
+    public function save(SimpleXMLElement $xml, $file, $prettyPrint = false)
     {
         if ($prettyPrint) {
             // Pretty print
-            file_put_contents($file, Xml::prettyPrint($xml));
+            file_put_contents($file, $this->prettyPrint($xml));
         } else {
             // No formatting
             file_put_contents($file, $xml->saveXML());
