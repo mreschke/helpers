@@ -123,8 +123,7 @@ class Str
 
                 // DO NOT run through utf8_encode() first as that will mess up iconv
                 // If your string needs it, do it before you send to this function
-                $msWordChars = ['–'=>'-', '—'=>'-', '‘'=>"'", '’'=>"'", '“'=>'"', '”'=>'"', '„'=>'"', '…'=>'...', '•'=>'o', '‰'=>'%'];
-                $data = strtr($data, $msWordChars);
+                $data = Str::stripMsWordChars($data);
 
                 try {
                     // Notice NOT IGNORE, will only fail if needs converted to utf8_encode
@@ -148,6 +147,17 @@ class Str
             }
         }
         return $data;
+    }
+
+    /**
+     * Strip some odd MS Word style chars like quotes, dashes and ellipsis
+     * @param  string $data
+     * @return string
+     */
+    public static function stripMsWordChars($data)
+    {
+        $msWordChars = ['–'=>'-', '—'=>'-', '‘'=>"'", '’'=>"'", '“'=>'"', '”'=>'"', '„'=>'"', '…'=>'...', '•'=>'o', '‰'=>'%'];
+        return strtr($data, $msWordChars);
     }
 
     /**
