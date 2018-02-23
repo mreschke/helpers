@@ -3,10 +3,10 @@
     "type": "library",
     "description": "Mreschke Helpers",
     "keywords": ["mreschke", "helpers"],
-    "homepage": "http://github.com/mreschke/mreschke-helpers",
+    "homepage": "http://github.com/mreschke/helpers",
     "license": "MIT",
     "support": {
-        "issues": "https://github.com/mreschke/mreschke-helpers/issues"
+        "issues": "https://github.com/mreschke/helpers/issues"
     },
     "authors": [
         {
