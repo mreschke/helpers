@@ -1,8 +1,8 @@
 <?php namespace Mreschke\Helpers;
 
-use Mail;
-use Queue;
 use Validator;
+use Mreschke\Helpers\Email\Message;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * Email helpers.
@@ -12,6 +12,46 @@ use Validator;
  */
 class Email
 {
+    /**
+     * Send email using laravel templates and queuing system
+     * To disable queuing, simply set laravels config/queue.php to sync driver
+     * @param  string|array $to array or comma dilimeted string
+     * @param  string $subject
+     * @param  string $body
+     * @param  string $from single email addres
+     * @param  string $fromName will use from address if null
+     * @param  string $replyTo single email address, will use from address if null
+     * @param  string|array $cc array or comma dilimeted string
+     * @param  string|array $bcc array or comma dilimeted string
+     * @param  string|array $files array or comma dilimeted string
+     * @param  string $template email blade template
+     * @return boolean sent success
+     */
+    public static function send($to, $subject, $body, $from = null, $fromName = null, $replyTo = null, $cc = null, $bcc = null, $files = null, $template = 'emails.message')
+    {
+        // Validate all emails, convert to arrays and set defaults
+        $to = self::validate($to);
+        $from = isset($from) ? $from : config('mail.from.address');
+        $fromName = isset($fromName) ? $fromName : config('mail.from.name');
+        $from = self::validate($from)[0];
+        $replyTo = self::validate($replyTo);
+        if ($replyTo) $replyTo = $replyTo[0];
+        $cc = self::validate($cc);
+        $bcc = self::validate($bcc);
+        if (is_null($to)) return false;
+        if (is_null($from)) return false;
+        if (is_null($fromName)) $fromName = $from;
+        if (is_null($replyTo)) $replyTo = $from;
+        if (isset($files) && is_string($files)) $files = explode(',', $files);
+
+        // As of Laravel 5.? only mailables can be queued, so Mail::queue() no longer works
+        // So we have a generic Email/Message.php file as our mailable
+        $mail = Mail::to($to);
+        if ($cc) $mail->cc($cc);
+        if ($bcc) $mail->bcc($bcc);
+        $mail->queue(new Message($subject, $body, $from, $fromName, $replyTo, $files, $template));
+        return true;
+    }
 
     /**
      * Validate one or multiple email addresses and return valid emails in #returnAsArray format
@@ -30,7 +70,6 @@ class Email
                 $emails = str_replace(';', ',', $emails);
                 $emails = str_replace(', ,', ',', $emails);
                 $emails = str_replace(',,', ',', $emails);
-
                 if ($emails) {
                     $emailArray = explode(',', $emails);
                 }
@@ -55,80 +94,5 @@ class Email
                 }
             }
         }
-    }
-
-    /**
-     * Send email using laravel templates and queuing system
-     * To disable queuing, simply set laravels config/queue.php to sync driver
-     * @param  string|array $to array or comma dilimeted string
-     * @param  string $subject
-     * @param  string $body
-     * @param  string $from single email addres
-     * @param  string $fromName will use from address if null
-     * @param  string $replyTo single email address, will use from address if null
-     * @param  string|array $cc array or comma dilimeted string
-     * @param  string|array $bcc array or comma dilimeted string
-     * @param  string|array $files array or comma dilimeted string
-     * @param  string $template email blade template
-     * @return boolean sent success
-     */
-    public static function send($to, $subject, $body, $from = null, $fromName = null, $replyTo = null, $cc = null, $bcc = null, $files = null, $template = 'emails.message')
-    {
-        // Validate all emails and convert to email arrays
-        $to = self::validate($to);
-        $from = isset($from) ? $from : config('mail.from.address');
-        $fromName = isset($fromName) ? $fromName : config('mail.from.name');
-        $from = self::validate($from);
-        $replyTo = self::validate($replyTo);
-        $cc = self::validate($cc);
-        $bcc = self::validate($bcc);
-        if (is_null($to)) {
-            return false;
-        }
-        if (is_null($from)) {
-            return false;
-        }
-        if (is_null($fromName)) {
-            $fromName = $from;
-        }
-        if (is_null($replyTo)) {
-            $replyTo = $from;
-        }
-        if (isset($files)) {
-            if (is_string($files)) {
-                $files = explode(',', $files);
-            }
-        }
-
-        // Send mail (use Mail::send for sync or Mail::queue for queeu async)
-        Mail::queue($template, ['msg' => $body], function ($message) use ($to, $subject, $body, $from, $fromName, $template, $replyTo, $cc, $bcc,$files) {
-
-            // From
-            $message->from($from, $fromName);
-
-            // Recipients
-            $message->to($to);
-            if (isset($cc)) {
-                $message->cc($cc);
-            }
-            if (isset($bcc)) {
-                $message->bcc($bcc);
-            }
-
-            // Reply To
-            $message->replyTo($replyTo);
-
-            // Subject
-            $message->subject($subject);
-
-            // Attachments
-            if (isset($files)) {
-                foreach ($files as $file) {
-                    if (file_exists($file)) {
-                        $message->attach($file);
-                    }
-                }
-            }
-        });
     }
 }
