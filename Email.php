@@ -25,9 +25,10 @@ class Email
      * @param  string|array $bcc array or comma dilimeted string
      * @param  string|array $files array or comma dilimeted string
      * @param  string $template email blade template
+     * @param  boolean $queue = true
      * @return boolean sent success
      */
-    public static function send($to, $subject, $body, $from = null, $fromName = null, $replyTo = null, $cc = null, $bcc = null, $files = null, $template = 'emails.message')
+    public static function send($to, $subject, $body, $from = null, $fromName = null, $replyTo = null, $cc = null, $bcc = null, $files = null, $template = 'emails.message', $queue = true)
     {
         // Validate all emails, convert to arrays and set defaults
         $to = self::validate($to);
@@ -49,7 +50,11 @@ class Email
         $mail = Mail::to($to);
         if ($cc) $mail->cc($cc);
         if ($bcc) $mail->bcc($bcc);
-        $mail->queue(new Message($subject, $body, $from, $fromName, $replyTo, $files, $template));
+        if ($queue) {
+            $mail->queue(new Message($subject, $body, $from, $fromName, $replyTo, $files, $template));
+        } else {
+            $mail->send(new Message($subject, $body, $from, $fromName, $replyTo, $files, $template));
+        }
         return true;
     }
 
