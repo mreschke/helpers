@@ -25,35 +25,60 @@ class Email
      * @param  string|array $bcc array or comma dilimeted string
      * @param  string|array $files array or comma dilimeted string
      * @param  string $template email blade template
-     * @param  boolean $queue = true
+     * @param  boolean $queued = true
      * @return boolean sent success
      */
-    public static function send($to, $subject, $body, $from = null, $fromName = null, $replyTo = null, $cc = null, $bcc = null, $files = null, $template = 'emails.message', $queue = true)
+    public static function send($to, $subject = null, $body = null, $from = null, $fromName = null, $replyTo = null, $cc = null, $bcc = null, $files = null, $template = 'emails.message', $queued = true)
     {
-        // Validate all emails, convert to arrays and set defaults
-        $to = self::validate($to);
-        $from = isset($from) ? $from : config('mail.from.address');
-        $fromName = isset($fromName) ? $fromName : config('mail.from.name');
-        $from = self::validate($from)[0];
-        $replyTo = self::validate($replyTo);
-        if ($replyTo) $replyTo = $replyTo[0];
-        $cc = self::validate($cc);
-        $bcc = self::validate($bcc);
-        if (is_null($to)) return false;
-        if (is_null($from)) return false;
-        if (is_null($fromName)) $fromName = $from;
-        if (is_null($replyTo)) $replyTo = $from;
-        if (isset($files) && is_string($files)) $files = explode(',', $files);
+        // Default Email Options
+        $options = [
+            'to' => '',
+            'subject' => 'Email',
+            'body' => '',
+            'from' => config('mail.from.address'),
+            'fromName' => config('mail.from.name'),
+            'replyTo' => config('mail.from.address'),
+            'cc' => null,
+            'bcc' => null,
+            'files' => null,
+            'template' => 'emails.message',
+            'queued' => true,
+        ];
+
+        // If $to is an associative array, use array based parameters
+        if (is_array($to) && array_keys($to) !== range(0, count($to) - 1)) {
+            // Merge array based options with default options
+            $options = array_merge($options, $to);
+        } else {
+            // Merge PHP function parameter based options with default options
+            foreach ($options as $key => $value) {
+                if (isset(${$key})) $options[$key] = ${$key};
+            }
+        }
+
+        // Convet all strings to arrays and validate all email addresses
+        $options['to'] = self::validate($options['to']);
+        $options['cc'] = self::validate($options['cc']);
+        $options['bcc'] = self::validate($options['bcc']);
+        $options['from'] = self::validate($options['from'], false);
+        $options['replyTo'] = self::validate($options['replyTo'], false);
+
+        // Files comma string to array
+        if (isset($options['files']) && is_string($options['files'])) {
+            $options['files'] = explode(',', $options['files']);
+        }
 
         // As of Laravel 5.? only mailables can be queued, so Mail::queue() no longer works
         // So we have a generic Email/Message.php file as our mailable
-        $mail = Mail::to($to);
-        if ($cc) $mail->cc($cc);
-        if ($bcc) $mail->bcc($bcc);
-        if ($queue) {
-            $mail->queue(new Message($subject, $body, $from, $fromName, $replyTo, $files, $template));
+        $mail = Mail::to($options['to']);
+        if ($options['cc']) $mail->cc($options['cc']);
+        if ($options['bcc']) $mail->bcc($options['bcc']);
+        if ($options['queued']) {
+            // Queued (asynchronous)
+            $mail->queue(new Message($options['subject'], $options['body'], $options['from'], $options['fromName'], $options['replyTo'], $options['files'], $options['template']));
         } else {
-            $mail->send(new Message($subject, $body, $from, $fromName, $replyTo, $files, $template));
+            // NOT Queued (synchronous)
+            $mail->send(new Message($options['subject'], $options['body'], $options['from'], $options['fromName'], $options['replyTo'], $options['files'], $options['template']));
         }
         return true;
     }
