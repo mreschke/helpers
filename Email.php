@@ -107,8 +107,8 @@ class Email
                 $emailArray = $emails;
             }
 
+            $validEmails = [];
             if ($emailArray) {
-                $validEmails = [];
                 foreach ($emailArray as $email) {
                     if (strlen($email) > 5 && Validator::make(['name' => $email], ['name' => 'email'])->passes()) {
                         $validEmails[] = $email;
