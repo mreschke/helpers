@@ -16,8 +16,7 @@ class Other
      */
     public static function isAssoc($arr)
     {
-        #return (is_array($array) && (count($array)==0 || 0 !== count(array_diff_key($array, array_keys(array_keys($array))) )));
-        return (is_array($arr) && array_keys($arr) !== range(0, count($arr) - 1));
+        return (is_array($arr) && array_keys($arr) !== range(0, cnt($arr) - 1));
     }
 
     /**

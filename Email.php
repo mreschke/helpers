@@ -46,7 +46,7 @@ class Email
         ];
 
         // If $to is an associative array, use array based parameters
-        if (is_array($to) && array_keys($to) !== range(0, count($to) - 1)) {
+        if (is_array($to) && array_keys($to) !== range(0, cnt($to) - 1)) {
             // Merge array based options with default options
             $options = array_merge($options, $to);
         } else {
